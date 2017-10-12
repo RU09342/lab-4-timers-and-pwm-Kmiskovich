@@ -1,28 +1,35 @@
-# Software PWM
-Most microprocessors will have a Timer module, but depending on the device, some may not come with pre-built PWM modules. Instead, you may have to utilize software techniques to synthesize PWM on your own.
+# Kevin Miskovich
 
-## Task
-You need to generate a 1kHz PWM signal with a duty cycle between 0% and 100%. Upon the processor starting up, you should PWM one of the on-board LEDs at a 50% duty cycle. Upon pressing one of the on-board buttons, the duty cycle of the LED should increase by 10%. Once you have reached 100%, your duty cycle should go back to 0% on the next button press. You also need to implement the other LED to light up when the Duty Cycle button is depressed and turns back off when it is let go. This is to help you figure out if the button has triggered multiple interrupts.
+## Software PWM
+The codes in this project are written in C and are used to blink an LED with varying duty cycles on each of the boards listed below.
+The timer is set into upmode, which allows CCR0 to be used as a ceiling for the count incrementation. 
+By using the value in CCR0 and increasing by the value in CCR1 with each button press, the duty cycle varies.
 
-### Hints
-You really, really, really, really need to hook up the output of your LED pin to an oscilloscope to make sure that the duty cycle is accurate. Also, since you are going to be doing a lot of initialization, it would be helpful for all persons involved if you created your main function like:
-'''c
-int main(void)
-{
-	WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
-	LEDSetup(); // Initialize our LEDS
-	ButtonSetup();  // Initialize our button
-	TimerA0Setup(); // Initialize Timer0
-	TimerA1Setup(); // Initialize Timer1
-	__bis_SR_register(LPM0_bits + GIE);       // Enter LPM0 w/ interrupt
-}
-'''
-This way, each of the steps in initialization can be isolated for easier understanding and debugging.
+# The Following Boards Are Implemented:
+* MSP430G2553
+* MSP430F5529
+* MSP430FR2311
+* MSP430FR5994
+* MSP430FR6989
+
+## Dependencies
+This library only depends on the MSP430.h header file for TI MSP430 processors. 
+This file is included in each of the C files. 
+No other header files are required.
+
+### The only peripherals being used are LED outputs and button inputs on each board:
+* G2443: P1.0 [LED1] and P1.3 [S2]
+* F5529: P1.0 [LED1] and P1.1 [S2]
+* FR5594: P1.0 [LED1] and P5.5 [S2]
+* FR2311: P1.0 [LED1] and P1.1 [S1]
+* FR6989: P1.0 [LED1] and P1.1 [S1]
 
 
-## Extra Work
-### Linear Brightness
-Much like every other things with humans, not everything we interact with we perceive as linear. For senses such as sight or hearing, certain features such as volume or brightness have a logarithmic relationship with our senses. Instead of just incrementing by 10%, try making the brightness appear to change linearly. 
+### Differences Between Boards
+Most of the code is exactly the same for each processor, with the exception of the MSP430FRx microcontrollers, in which case you must turn off high impedance mode. Other than that, the only differences are pins, which are differentiated above.
+The FR2311 uses the Timer B module instead of the Timer A module that the others use.
 
-### Power Comparison
-Since you are effectively turning the LED off for some period of time, it should follow that the amount of power you are using over time should be less. Using Energy Trace, compare the power consumption of the different duty cycles. What happens if you use the pre-divider in the timer module for the PWM (does it consume less power)?
+### EXTRA: Linear Brightness
+After consulting with other students, I was able to give each of the boards the capability to perform a brightness increase.
+This is achieved by using a large multi-case statement that separated by logarithmic values in the capture compare register. 
+
