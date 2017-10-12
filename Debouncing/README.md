@@ -1,15 +1,29 @@
-# Software Debouncing
-In previously labs, we talked about how objects such as switches can cause some nasty effects since they are actually a mechanical system at heart. We talked about the simple hardware method of debouncing, but due to the many different design constraints, you may not be able to add or adjust hardware. Debouncing is also only one of many applications which would require the use of built in Timers to allow for other processes to take place.
+# Kevin Miskovich
 
-## Task
-You need to utilize the TIMER modules within the MSP430 processors to implement a debounced switch to control the state of an LED. You most likely will want to hook up your buttons on the development boards to an oscilloscope to see how much time it takes for the buttons to settle. The idea here is that your processor should be able to run other code, while relying on timers and interrupts to manage the debouncing in the background. You should not be using polling techniques for this assignment. Your code should also be able to detect 
+## Software Debouncing
+The codes in this project are written in C and are used to blink an LED with a 50% duty cycle on each of the boards listed below.
+This code uses an if statement inside the watchdog timer ISR in order to check if the button is pressed in order to debounce the signal. 
+The Port 1 interrupt is used to enable the watchdog timer interrupt and add a delay to the watchdog timer.
 
-### Hints
-You need to take a look at how the P1IE and P1IES registers work and how to control them within an interrupt routine. Remember that the debouncing is not going to be the main process you are going to run by the end of the lab.
+# The Following Boards Are Implemented:
+* MSP430G2553
+* MSP430F5529
+* MSP430FR2311
+* MSP430FR5994
+* MSP430FR6989
 
-## Extra Work
-### Low Power Modes
-Go into the datasheets or look online for information about the low power modes of your processors and using Energy Trace, see what the lowest power consumption you can achieve while still running your debouncing code. Take a note when your processor is not driving the LED (or unplug the header connecting the LED and check) but running the interrupt routine for your debouncing.
+## Dependencies
+This library only depends on the MSP430.h header file for TI MSP430 processors. This file is included in each of the C files. No other header files are required.
 
-### Double the fun
-Can you expand your code to debounce two switches? Do you have to use two Timer peripherals to do this?
+### The only peripherals being used are LED outputs and button inputs on each board:
+* G2443: P1.0 [LED1] and P1.3 [S2]
+* F5529: P1.0 [LED1] and P1.1 [S2]
+* FR5594: P1.0 [LED1] and P5.5 [S2]
+* FR2311: P1.0 [LED1] and P1.1 [S1]
+* FR6989: P1.0 [LED1] and P1.1 [S1]
+
+### Differences Between Boards
+Most of the code is exactly the same for each processor, with the exception of the MSP430FRx microcontrollers, in which case you must turn off high impedance mode. Other than that, the only differences are pins, which are differentiated above.
+
+## Usage
+The software debouncing codes work when the button specified is pressed. When the button isnt pressed, the watchdog ISR is checking if the button is pressed and if it is, the button interrupt is activated, which debounces the signal.
